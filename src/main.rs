@@ -1,6 +1,7 @@
 #[macro_use] extern crate rocket;
 use rocket::fs::FileServer;
-use rocket::fs::NamedFile;
+use rocket::http::Status;
+use std::path::Path;
 /*#[get("/")]
 fn index() -> &'static str {
     "Comment ça va"
@@ -15,7 +16,12 @@ fn first() -> &'static str {
 fn world() -> &'static str {  // <- request handler
     "hello, world!"
 }
-
+#[get("/statics/<file_path>")]
+fn statics(file_path: &str) -> Option<&str> {
+    Path::new(file_path)
+        .extension()
+        .and_then(|e| e.to_str())
+}
 #[launch]
 fn rocket() -> _ {
     rocket::build()

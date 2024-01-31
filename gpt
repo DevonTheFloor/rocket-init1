@@ -1,0 +1,38 @@
+#![feature(proc_macro_hygiene, decl_macro)]
+
+#[macro_use] extern crate rocket;
+
+use rocket::response::NamedFile;
+use rocket::http::ContentType;
+use std::path::{Path, PathBuf};
+
+#[get("/download/<file_name>")]
+fn download(file_name: String) -> Option<NamedFile> {
+    let file_path = format!("/chemin/vers/votre/repertoire/{}", file_name);
+    let named_file = NamedFile::open(Path::new(&file_path)).ok()?;
+
+    // Obtenez l'extension du fichier
+    let file_extension = named_file.file_name().and_then(|name| name.extension());
+
+    // Déterminez le type MIME en fonction de l'extension du fichier
+    let content_type = match file_extension.and_then(|ext| ext.to_str()) {
+        Some("txt") => ContentType::Plain,
+        Some("html") => ContentType::HTML,
+        Some("jpg") | Some("jpeg") => ContentType::JPEG,
+        Some("png") => ContentType::PNG,
+        // Ajoutez d'autres types MIME selon vos besoins
+        _ => ContentType::Binary,
+    };
+
+    // Créez la réponse avec le type MIME spécifié
+    let mut response = named_file.respond_to(&rocket::Request::new()).ok()?;
+
+    // Ajoutez l'en-tête Content-Type
+    response.set_header(content_type);
+
+    Some(response)
+}
+
+fn main() {
+    rocket::ignite().mount("/", routes![download]).launch();
+}

@@ -1,0 +1,12 @@
+https://rocket.rs/v0.5/guide/getting-started/
+
+cargo new hello-rocket --bin
+cd hello-rocket
+
+Now, add Rocket as a dependency in your Cargo.toml:
+
+
+
+[dependencies]
+rocket = "0.5.0"
+
